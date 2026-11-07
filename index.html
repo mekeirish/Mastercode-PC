@@ -1,0 +1,1988 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#050608">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon.png">
+<title>Mastercode — PWA Factory</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script>
+window.tailwind = window.tailwind || {};
+window.tailwind.config = { theme: { extend: { fontFamily: { inter: ["Inter", "sans-serif"] } } } };
+</script>
+<style>
+:root{
+  --bg-primary:#050608;
+  --bg-card:linear-gradient(145deg,rgba(255,255,255,.075),rgba(255,255,255,.025));
+  --border-subtle:rgba(255,255,255,.075);
+  --text-primary:#f8fafc;
+  --text-secondary:#94a3b8;
+  --text-muted:#64748b;
+  --accent:#6366f1;
+  --accent-light:#a5b4fc;
+  --success:#22c55e;
+  --warn:#facc15;
+  --danger:#ef4444;
+}
+*{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body{
+  width:100%; height:100%; margin:0; overflow:hidden; background:#050608;
+}
+body{
+  font-family:Inter,sans-serif; color:#f8fafc;
+  background:
+    radial-gradient(circle at 15% 5%,rgba(79,70,229,.14),transparent 28%),
+    radial-gradient(circle at 90% 15%,rgba(124,58,237,.10),transparent 25%),
+    radial-gradient(circle at 50% 100%,rgba(37,99,235,.08),transparent 35%),
+    #050608;
+}
+button, input, textarea{ font-family:inherit; }
+button{ -webkit-user-select:none; user-select:none; cursor:pointer; }
+kbd{
+  display:inline-flex; align-items:center; justify-content:center;
+  min-width:20px; height:20px; padding:0 6px;
+  border-radius:5px; background:rgba(255,255,255,.06);
+  border:1px solid rgba(255,255,255,.12); border-bottom-width:2px;
+  font-family:ui-monospace,'Courier New',monospace;
+  font-size:10.5px; font-weight:600; color:#cbd5e1; white-space:nowrap;
+  line-height:1;
+}
+.hidden{ display:none !important; }
+
+/* ===================== APP GRID ===================== */
+.app{
+  width:100%; height:100dvh; min-height:100dvh;
+  display:grid;
+  grid-template-columns:280px 1fr;
+  grid-template-rows:56px 1fr 26px;
+  grid-template-areas:
+    "header header"
+    "sidebar main"
+    "footer footer";
+  overflow:hidden;
+}
+
+/* ===================== HEADER ===================== */
+.app-header{
+  grid-area:header; position:relative;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 18px; gap:16px;
+  background:rgba(5,6,8,.65);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+}
+.brand{ display:flex; align-items:center; gap:11px; min-width:0; }
+.brand-logo{
+  width:38px; height:38px; flex:0 0 38px; border-radius:12px;
+  display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(145deg,rgba(99,102,241,.25),rgba(255,255,255,.025));
+  border:1px solid rgba(255,255,255,.09);
+  box-shadow:0 0 25px rgba(99,102,241,.13),inset 0 1px rgba(255,255,255,.08);
+}
+.brand-logo span{ font-size:16px; font-weight:800; }
+.brand-name{ font-size:15px; font-weight:800; letter-spacing:-.4px; line-height:18px; }
+.brand-sub{ color:#64748b; font-size:8px; font-weight:700; letter-spacing:.18em; text-transform:uppercase; margin-top:1px; }
+.header-center{
+  flex:1; display:flex; justify-content:center;
+  color:#475569; font-size:11px; gap:6px; align-items:center;
+}
+.header-right{ display:flex; align-items:center; gap:8px; }
+.header-btn{
+  height:34px; padding:0 12px; border-radius:9px;
+  display:inline-flex; align-items:center; gap:7px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  color:#cbd5e1; font-size:11.5px; font-weight:600;
+  transition:.15s ease;
+}
+.header-btn:hover{ background:rgba(255,255,255,.08); color:#f8fafc; }
+.header-btn:active{ transform:scale(.97); }
+.header-icon{
+  width:34px; height:34px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  color:#94a3b8; font-size:15px;
+  transition:.15s ease;
+}
+.header-icon:hover{ color:#f8fafc; background:rgba(255,255,255,.08); }
+.mobile-menu-btn{ display:none; }
+.save-indicator{
+  position:absolute; top:10px; right:10px;
+  width:6px; height:6px; border-radius:50%;
+  background:var(--success); box-shadow:0 0 8px var(--success);
+  opacity:0; transition:opacity .3s ease; pointer-events:none;
+}
+.save-indicator.show{ opacity:1; }
+
+/* ===================== SIDEBAR ===================== */
+.sidebar{
+  grid-area:sidebar; display:flex; flex-direction:column;
+  border-right:1px solid rgba(255,255,255,.06);
+  background:rgba(0,0,0,.18); overflow:hidden;
+}
+.sidebar-section{
+  padding:14px; border-bottom:1px solid rgba(255,255,255,.05);
+  display:flex; flex-direction:column; min-height:0;
+}
+.sidebar-section.sessions{ flex:1; min-height:0; }
+.sidebar-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.sidebar-title{
+  font-size:10px; font-weight:800; letter-spacing:.16em;
+  text-transform:uppercase; color:#64748b;
+}
+.sidebar-add{
+  width:24px; height:24px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(99,102,241,.15); border:1px solid rgba(99,102,241,.25);
+  color:#a5b4fc; font-size:14px; font-weight:700; line-height:1;
+}
+.sidebar-add:hover{ background:rgba(99,102,241,.25); }
+.sidebar-add:active{ transform:scale(.94); }
+.session-list-sidebar{
+  display:flex; flex-direction:column; gap:3px;
+  overflow-y:auto; flex:1; padding-right:4px;
+}
+.session-list-sidebar::-webkit-scrollbar{ width:4px; }
+.session-list-sidebar::-webkit-scrollbar-thumb{ background:rgba(99,102,241,.3); border-radius:2px; }
+.session-mini{
+  display:flex; align-items:center; gap:9px;
+  padding:8px 9px; border-radius:8px;
+  cursor:pointer; transition:.12s ease;
+  border:1px solid transparent;
+}
+.session-mini:hover{ background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.05); }
+.session-mini:active{ background:rgba(99,102,241,.12); }
+.session-mini.active{ background:rgba(99,102,241,.1); border-color:rgba(99,102,241,.2); }
+.session-mini-icon{
+  width:26px; height:26px; flex:0 0 26px; border-radius:7px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.06);
+  font-size:12px; overflow:hidden;
+}
+.session-mini-icon img{ width:100%; height:100%; object-fit:cover; }
+.session-mini-info{ flex:1; min-width:0; }
+.session-mini-name{
+  font-size:11.5px; font-weight:600; color:#e2e8f0;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  line-height:1.3;
+}
+.session-mini-meta{
+  font-size:9.5px; color:#64748b; font-weight:500;
+  font-variant-numeric:tabular-nums; margin-top:1px;
+}
+.session-mini-delete{
+  width:20px; height:20px; flex:0 0 20px; border-radius:5px;
+  display:flex; align-items:center; justify-content:center;
+  background:transparent; border:0; color:#475569;
+  font-size:12px; opacity:0; transition:.12s ease;
+}
+.session-mini:hover .session-mini-delete{ opacity:1; }
+.session-mini-delete:hover{ background:rgba(239,68,68,.15); color:#f87171; }
+.empty-state{
+  color:#475569; font-size:11px; text-align:center;
+  padding:24px 12px; line-height:1.5;
+}
+.shortcuts-mini{ display:flex; flex-direction:column; gap:6px; }
+.shortcut-mini{
+  display:flex; align-items:center; justify-content:space-between;
+  font-size:11px; color:#94a3b8;
+}
+.shortcut-mini .keys{ display:flex; gap:3px; }
+
+/* ===================== WORKSPACE ===================== */
+.workspace{
+  grid-area:main; display:flex; flex-direction:column;
+  gap:10px; padding:12px 16px; min-height:0; overflow:hidden;
+}
+.card{
+  background:var(--bg-card);
+  border:1px solid var(--border-subtle);
+  border-radius:14px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 8px 32px rgba(0,0,0,.2);
+  backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px);
+}
+
+/* ===================== CONFIG ROW ===================== */
+.config-row{
+  flex:0 0 auto;
+  display:grid;
+  grid-template-columns:1fr 220px 200px;
+  gap:10px;
+}
+.config-card{ padding:11px 13px; display:flex; flex-direction:column; gap:7px; }
+.config-label{
+  font-size:10px; font-weight:800; letter-spacing:.14em;
+  text-transform:uppercase; color:#64748b;
+}
+.token-row{
+  display:grid; grid-template-columns:1fr auto auto; gap:6px;
+}
+.field{
+  width:100%; min-width:0; height:38px; border-radius:9px;
+  background:rgba(0,0,0,.3); border:1px solid rgba(255,255,255,.08);
+  color:#f8fafc; outline:none; padding:0 11px;
+  font-size:13px; transition:.15s ease;
+}
+.field::placeholder{ color:#475569; }
+.field:focus{ border-color:rgba(99,102,241,.65); box-shadow:0 0 0 2px rgba(99,102,241,.1); }
+.small-btn{
+  height:38px; padding:0 10px; border-radius:9px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:10.5px; font-weight:700; letter-spacing:.03em; color:#94a3b8;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  transition:.15s ease; white-space:nowrap;
+}
+.small-btn:hover{ background:rgba(255,255,255,.08); color:#e2e8f0; }
+.small-btn:active{ transform:scale(.97); }
+.clear-key{
+  align-self:flex-start; border:0; padding:0; background:none;
+  color:#475569; font-size:10px; font-weight:600;
+  text-transform:uppercase; letter-spacing:.08em;
+}
+.clear-key:hover{ color:#f87171; }
+.field-label{
+  font-size:10px; color:#64748b; text-transform:uppercase;
+  letter-spacing:.12em; font-weight:800;
+}
+
+/* Icon zone */
+.icon-zone{
+  flex:1; min-height:38px; border-radius:9px;
+  border:1px dashed rgba(255,255,255,.12);
+  background:rgba(0,0,0,.18);
+  display:flex; align-items:center; justify-content:center;
+  position:relative; overflow:hidden; padding:4px;
+}
+.icon-zone.has-icon{
+  border-style:solid; border-color:rgba(99,102,241,.3);
+  background:rgba(99,102,241,.05);
+}
+.icon-preview{
+  width:28px; height:28px; border-radius:7px;
+  border:1px solid rgba(255,255,255,.15); object-fit:cover;
+}
+.icon-upload-wrap{ display:flex; align-items:center; gap:8px; width:100%; }
+.icon-upload-wrap input{
+  flex:1; min-width:0; font-size:10px; color:#64748b;
+}
+.icon-upload-wrap input::file-selector-button{
+  border:0; border-radius:6px; padding:5px 8px; margin-right:5px;
+  background:rgba(255,255,255,.08); color:#cbd5e1; font-size:10px;
+  font-weight:600; cursor:pointer;
+}
+.icon-clear{
+  position:absolute; top:3px; right:3px;
+  width:18px; height:18px; border-radius:5px;
+  background:rgba(239,68,68,.18); border:1px solid rgba(239,68,68,.3);
+  color:#f87171; font-size:10px;
+  display:none; align-items:center; justify-content:center;
+  cursor:pointer;
+}
+.icon-clear.show{ display:flex; }
+.bg-pick{
+  position:absolute; top:3px; left:3px;
+  display:none; align-items:center; gap:4px;
+  font-size:8px; font-weight:800; letter-spacing:.08em;
+  text-transform:uppercase; color:#64748b;
+}
+.bg-pick.show{ display:flex; }
+.bg-pick input{
+  -webkit-appearance:none; appearance:none;
+  width:18px; height:18px; padding:0;
+  border:1px solid rgba(255,255,255,.2); border-radius:5px;
+  background:none; cursor:pointer; overflow:hidden;
+}
+.bg-pick input::-webkit-color-swatch-wrapper{ padding:0; }
+.bg-pick input::-webkit-color-swatch{ border:0; border-radius:4px; }
+.bg-pick input::-moz-color-swatch{ border:0; border-radius:4px; }
+
+/* ===================== EDITOR ===================== */
+.editor-wrap{
+  flex:1 1 auto; min-height:180px;
+  display:flex; flex-direction:column;
+  padding:11px 13px; gap:7px;
+}
+.editor-head{
+  display:flex; align-items:center; justify-content:space-between;
+}
+.editor-meta{
+  font-size:10px; color:#475569; font-weight:600;
+  font-variant-numeric:tabular-nums; letter-spacing:.05em;
+}
+.html-editor{ flex:1; min-height:0; position:relative; }
+.html-editor textarea{
+  width:100%; height:100%; min-height:100%;
+  resize:none; padding:12px 14px 36px; border-radius:10px;
+  background:rgba(0,0,0,.35); border:1px solid rgba(255,255,255,.08);
+  color:#cbd5e1; outline:none;
+  font-family:"Courier New",ui-monospace,monospace;
+  font-size:12.5px; line-height:1.6;
+  transition:.15s ease;
+}
+.html-editor textarea:focus{
+  border-color:rgba(99,102,241,.6);
+  box-shadow:0 0 0 2px rgba(99,102,241,.08);
+}
+.paste-html{
+  position:absolute; right:8px; bottom:8px;
+  height:26px; padding:0 10px; border-radius:7px;
+  background:rgba(99,102,241,.15); border:1px solid rgba(99,102,241,.25);
+  color:#a5b4fc; font-size:10.5px; font-weight:700;
+  display:flex; align-items:center; gap:5px;
+  transition:.15s ease;
+}
+.paste-html:hover{ background:rgba(99,102,241,.25); }
+.paste-html:active{ transform:scale(.96); }
+
+/* ===================== ACTIONS ===================== */
+.actions-row{
+  flex:0 0 auto;
+  display:flex; gap:10px; align-items:stretch;
+}
+.action-btn{
+  height:46px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  gap:9px; font-size:13px; font-weight:800;
+  letter-spacing:.01em; padding:0 22px;
+  transition:.15s ease; white-space:nowrap;
+}
+.action-btn kbd{
+  background:rgba(0,0,0,.25); border-color:rgba(255,255,255,.15);
+  color:inherit; opacity:.7; height:18px; font-size:10px;
+}
+.forge{
+  flex:1;
+  color:#fff;
+  background:linear-gradient(135deg,#5967e8,#7147d8);
+  border:1px solid rgba(167,139,250,.3);
+  box-shadow:0 8px 24px rgba(79,70,229,.25);
+}
+.forge:hover{ filter:brightness(1.08); }
+.forge:active{ transform:scale(.99); }
+.inject{
+  color:#a5b4fc;
+  background:rgba(255,255,255,.04);
+  border:1px solid rgba(255,255,255,.08);
+}
+.inject:hover{ background:rgba(255,255,255,.07); color:#c7d2fe; }
+.inject:active{ transform:scale(.99); }
+.action-btn:disabled{ opacity:.5; cursor:not-allowed; }
+#loader{ animation:spin .9s linear infinite; display:inline-block; }
+@keyframes spin{ from{ transform:rotate(0); } to{ transform:rotate(360deg); } }
+
+/* ===================== LIVE INLINE ===================== */
+.live-inline{
+  flex:0 0 auto;
+  display:flex; align-items:center; gap:12px;
+  padding:10px 14px; border-radius:11px;
+  background:rgba(0,0,0,.25);
+  border:1px solid rgba(255,255,255,.07);
+}
+.live-inline.hidden{ display:none; }
+.live-inline .live-main{
+  flex:1; min-width:0;
+  display:flex; flex-direction:column; gap:5px;
+}
+.live-inline .live-title{
+  font-size:11.5px; font-weight:700; color:#e2e8f0;
+  display:flex; align-items:center; gap:8px;
+}
+.live-inline .live-sub{
+  font-size:10px; color:#64748b;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.live-inline .progress-wrap{
+  width:100%; height:5px; border-radius:999px;
+  background:rgba(255,255,255,.07); overflow:hidden; position:relative;
+}
+.progress-bar{
+  height:100%; width:0%;
+  background:linear-gradient(90deg,#6366f1,#a855f7,#6366f1);
+  background-size:200% 100%; border-radius:999px;
+  transition:width .35s ease;
+  animation:progressShimmer 2.2s linear infinite;
+}
+.progress-bar.done{ background:linear-gradient(90deg,#22c55e,#4ade80); animation:none; }
+.progress-bar.error{ background:linear-gradient(90deg,#ef4444,#f87171); animation:none; }
+@keyframes progressShimmer{ 0%{ background-position:0% 0; } 100%{ background-position:200% 0; } }
+.progress-pct{
+  font-variant-numeric:tabular-nums; color:#a5b4fc;
+  font-size:11px; font-weight:700; min-width:38px; text-align:right;
+}
+.live-open{
+  height:32px; padding:0 14px; border-radius:8px;
+  background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.1);
+  color:#cbd5e1; font-size:11px; font-weight:700;
+  transition:.15s ease;
+}
+.live-open:hover{ background:rgba(255,255,255,.1); color:#f8fafc; }
+.led{
+  position:relative; width:10px; height:10px; flex:0 0 10px; border-radius:50%;
+  background:#334155; box-shadow:inset 0 1px 2px rgba(255,255,255,.12);
+  transition:.35s ease;
+}
+.led.yellow{ background:#facc15; box-shadow:0 0 4px #facc15,0 0 11px #facc15,0 0 25px rgba(250,204,21,.5); animation:ledPulse 1.35s infinite; }
+.led.green{ background:#22c55e; box-shadow:0 0 4px #22c55e,0 0 12px #22c55e,0 0 25px rgba(34,197,94,.45); }
+.led.red{ background:#ef4444; box-shadow:0 0 4px #ef4444,0 0 12px #ef4444,0 0 25px rgba(239,68,68,.45); }
+@keyframes ledPulse{ 0%,100%{ transform:scale(.9); } 50%{ transform:scale(1.12); } }
+
+/* ===================== STATUS ===================== */
+.status-panel{
+  flex:0 0 150px;
+  display:flex; flex-direction:column;
+  background:rgba(0,0,0,.32);
+  border:1px solid rgba(255,255,255,.06);
+  border-radius:12px; overflow:hidden;
+}
+.status-head{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:7px 12px; border-bottom:1px solid rgba(255,255,255,.05);
+  background:rgba(0,0,0,.15);
+}
+.status-title{
+  font-size:10px; font-weight:800; letter-spacing:.15em;
+  text-transform:uppercase; color:#64748b;
+}
+.copy-report{
+  border:0; background:none; color:#64748b;
+  font-size:10px; font-weight:700; letter-spacing:.06em;
+  text-transform:uppercase; padding:2px 6px; border-radius:5px;
+  transition:.12s ease;
+}
+.copy-report:hover{ color:#cbd5e1; background:rgba(255,255,255,.05); }
+.status-inner{
+  flex:1; min-height:0; overflow-y:auto;
+  padding:8px 12px; white-space:pre-wrap; word-break:break-word;
+  font-family:"Courier New",ui-monospace,monospace;
+  font-size:11px; line-height:1.5; color:#94a3b8;
+}
+.status-inner::-webkit-scrollbar{ width:4px; }
+.status-inner::-webkit-scrollbar-thumb{ background:rgba(99,102,241,.3); border-radius:2px; }
+.log-line{ display:block; }
+.log-line .cmd{ color:#6366f1; font-weight:700; }
+.log-line .ok{ color:#4ade80; font-weight:700; }
+.log-line .warn{ color:#facc15; font-weight:700; }
+.log-line .err{ color:#f87171; font-weight:700; }
+.log-line .info{ color:#cbd5e1; }
+
+/* ===================== FOOTER ===================== */
+.app-footer{
+  grid-area:footer;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 16px; gap:12px;
+  border-top:1px solid rgba(255,255,255,.06);
+  background:rgba(0,0,0,.3);
+  color:#334155; font-size:10px;
+  letter-spacing:.08em; text-transform:uppercase;
+  font-weight:600;
+}
+.footer-status{ color:#64748b; transition:.2s ease; }
+.footer-status.ok{ color:#4ade80; }
+.footer-status.warn{ color:#facc15; }
+.footer-status.err{ color:#f87171; }
+.footer-status.busy{ color:#a5b4fc; }
+.footer-keys{ display:flex; gap:8px; align-items:center; }
+.footer-keys kbd{ transform:scale(.85); transform-origin:center; }
+
+/* ===================== MODAL ===================== */
+.overlay{
+  position:fixed; inset:0; z-index:10000;
+  background:rgba(0,0,0,.72);
+  backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px);
+  opacity:0; pointer-events:none; transition:.2s ease;
+}
+.overlay.open{ opacity:1; pointer-events:auto; }
+.modal{
+  position:fixed; z-index:10001; left:50%; top:50%;
+  width:calc(100% - 40px); max-width:720px;
+  max-height:calc(100dvh - 40px);
+  transform:translate(-50%,-48%) scale(.97);
+  opacity:0; pointer-events:none; transition:.22s ease;
+  border-radius:16px; overflow:hidden;
+  background:linear-gradient(145deg,rgba(20,22,35,.98),rgba(10,12,20,.98));
+  border:1px solid rgba(255,255,255,.08);
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.modal.open{ transform:translate(-50%,-50%) scale(1); opacity:1; pointer-events:auto; }
+.modal-body{ padding:22px; max-height:calc(100dvh - 40px); overflow:auto; }
+.modal-head{
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:16px;
+}
+.modal-head-left{ display:flex; align-items:center; gap:12px; }
+.modal-icon{
+  width:40px; height:40px; border-radius:11px;
+  display:flex; align-items:center; justify-content:center;
+  background:rgba(99,102,241,.12); border:1px solid rgba(99,102,241,.2);
+  font-size:18px;
+}
+.modal-title{ font-size:15px; font-weight:800; color:#e2e8f0; line-height:1.2; }
+.modal-sub{
+  font-size:10px; text-transform:uppercase; letter-spacing:.15em;
+  color:#6366f1; font-weight:700; margin-bottom:2px;
+}
+.modal-close{
+  width:32px; height:32px; border-radius:9px;
+  background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);
+  color:#94a3b8; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+  transition:.15s ease;
+}
+.modal-close:hover{ background:rgba(255,255,255,.09); color:#f8fafc; }
+.custom-script{
+  width:100%; height:44dvh; min-height:220px; max-height:520px;
+  resize:vertical; border-radius:11px; padding:12px;
+  background:rgba(0,0,0,.4); border:1px solid rgba(255,255,255,.08);
+  color:#cbd5e1; outline:none;
+  font-family:"Courier New",ui-monospace,monospace;
+  font-size:12px; line-height:1.6;
+}
+.session-list{ display:flex; flex-direction:column; gap:8px; max-height:50dvh; overflow-y:auto; }
+.session-item{
+  padding:12px 14px; border-radius:10px;
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+  cursor:pointer; transition:.15s ease;
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+.session-item:hover{ background:rgba(99,102,241,.08); border-color:rgba(99,102,241,.2); }
+.session-info{ min-width:0; flex:1; }
+.session-name{ font-size:13px; font-weight:700; color:#e2e8f0; margin-bottom:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.session-meta{ font-size:11px; color:#64748b; font-variant-numeric:tabular-nums; }
+.session-delete{
+  width:30px; height:30px; flex:0 0 30px; border-radius:8px;
+  background:rgba(239,68,68,.08); border:1px solid rgba(239,68,68,.15);
+  color:#f87171; font-size:13px;
+  display:flex; align-items:center; justify-content:center;
+  transition:.15s ease;
+}
+.session-delete:hover{ background:rgba(239,68,68,.18); }
+
+/* Shortcuts modal grid */
+.shortcuts-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:16px;
+}
+.shortcut-group-title{
+  font-size:10px; font-weight:800; text-transform:uppercase;
+  letter-spacing:.15em; color:#6366f1; margin-bottom:8px;
+  padding-bottom:5px; border-bottom:1px solid rgba(99,102,241,.15);
+}
+.shortcut-row{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:5px 0; font-size:12px; color:#cbd5e1;
+  gap:12px;
+}
+.shortcut-row > span:first-child{ color:#94a3b8; }
+.shortcut-row .keys{ display:flex; gap:4px; }
+
+/* ===================== MOBILE FALLBACK ===================== */
+@media (max-width: 900px){
+  .app{
+    grid-template-columns:1fr;
+    grid-template-areas:
+      "header"
+      "main"
+      "footer";
+  }
+  .sidebar{
+    display:none;
+    position:fixed;
+    top:56px; left:0; bottom:26px;
+    width:280px; z-index:1000;
+    background:#050608;
+    border-right:1px solid rgba(255,255,255,.08);
+    box-shadow:12px 0 40px rgba(0,0,0,.6);
+  }
+  .sidebar.open{ display:flex; }
+  .mobile-menu-btn{ display:flex; }
+  .header-center{ display:none; }
+  .config-row{ grid-template-columns:1fr 1fr; }
+  .config-row .config-project{ display:none; }
+  .workspace{ padding:10px; gap:8px; }
+  .action-btn{ padding:0 12px; font-size:12px; }
+  .action-btn kbd{ display:none; }
+  .footer-keys{ display:none; }
+}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#4b6cb7">
+<link rel="apple-touch-icon" href="icon.png"></head>
+<body>
+<div class="app">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="app-header">
+    <div class="brand">
+      <button class="header-icon mobile-menu-btn" onclick="toggleSidebar()" title="Menu">☰</button>
+      <div class="brand-logo"><span>M</span></div>
+      <div class="min-w-0">
+        <div class="brand-name">Mastercode</div>
+        <div class="brand-sub">Premium PWA Factory</div>
+      </div>
+    </div>
+    <div class="header-center">
+      Appuyez sur <kbd>?</kbd> pour les raccourcis
+    </div>
+    <div class="header-right">
+      <button class="header-btn" onclick="openShortcutsModal()" title="Raccourcis (?)">
+        <span>⌨</span> <span>Raccourcis</span>
+      </button>
+      <button class="header-btn" onclick="openSwModal()" title="Script personnalisé (Ctrl+,)">
+        <span>🧠</span> <span>Script</span>
+      </button>
+      <button class="header-icon" onclick="openSessionsModal()" title="Tous les projets">📁</button>
+    </div>
+    <span id="saveIndicator" class="save-indicator"></span>
+  </header>
+
+  <!-- ===================== SIDEBAR ===================== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-section sessions">
+      <div class="sidebar-head">
+        <span class="sidebar-title">Projets</span>
+        <button class="sidebar-add" onclick="saveCurrentAsSession()" title="Sauvegarder (Ctrl+S)">+</button>
+      </div>
+      <div id="sessionListSidebar" class="session-list-sidebar"></div>
+    </div>
+    <div class="sidebar-section">
+      <div class="sidebar-head">
+        <span class="sidebar-title">Raccourcis</span>
+      </div>
+      <div class="shortcuts-mini">
+        <div class="shortcut-mini"><span>Forger</span><span class="keys"><kbd>Ctrl</kbd><kbd>↵</kbd></span></div>
+        <div class="shortcut-mini"><span>Injecter</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>↵</kbd></span></div>
+        <div class="shortcut-mini"><span>Sauver</span><span class="keys"><kbd>Ctrl</kbd><kbd>S</kbd></span></div>
+        <div class="shortcut-mini"><span>Token</span><span class="keys"><kbd>Ctrl</kbd><kbd>K</kbd></span></div>
+        <div class="shortcut-mini"><span>Éditeur</span><span class="keys"><kbd>Ctrl</kbd><kbd>B</kbd></span></div>
+        <div class="shortcut-mini"><span>Script</span><span class="keys"><kbd>Ctrl</kbd><kbd>,</kbd></span></div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===================== WORKSPACE ===================== -->
+  <main class="workspace">
+
+    <!-- CONFIG ROW -->
+    <div class="config-row">
+      <div class="card config-card">
+        <div class="config-label">Token GitHub</div>
+        <div class="token-row">
+          <input id="ghToken" class="field" type="password" placeholder="ghp_..." autocomplete="off" spellcheck="false" oninput="onTokenInput(this.value.trim())">
+          <button class="small-btn" onclick="toggleView('ghToken',this)">VOIR</button>
+          <button class="small-btn" onclick="pasteToken()">📋</button>
+        </div>
+        <button class="clear-key" onclick="clearAllData()">🗑 Effacer la clé</button>
+      </div>
+      <div class="card config-card config-project">
+        <div class="config-label">Nom du projet</div>
+        <input id="appName" class="field" type="text" placeholder="ex: master-factory" autocomplete="off" spellcheck="false" oninput="onAppNameInput(this.value)">
+      </div>
+      <div class="card config-card">
+        <div class="config-label">Icône PWA</div>
+        <div class="icon-zone" id="iconZone">
+          <label class="bg-pick" id="bgPick" title="Couleur du fond de lancement">FOND<input type="color" id="iconBgInput" value="#050608" oninput="onIconBgInput(this.value)"></label>
+          <button class="icon-clear" id="iconClear" onclick="clearIcon()" title="Supprimer">✕</button>
+          <div id="iconPreviewWrap" class="hidden"><img id="iconPreview" class="icon-preview" alt="Aperçu"></div>
+          <div id="iconUpload" class="icon-upload-wrap">
+            <input id="iconInput" type="file" accept="image/*" onchange="previewIcon(this)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDITOR -->
+    <section class="card editor-wrap">
+      <div class="editor-head">
+        <span class="field-label">Code HTML</span>
+        <span class="editor-meta" id="htmlMeta">0 l · 0 Ko</span>
+      </div>
+      <div class="html-editor">
+        <textarea id="htmlInput" placeholder="Colle ton code HTML ici..." spellcheck="false" oninput="onHtmlInput()"></textarea>
+        <button class="paste-html" onclick="pasteHTML()">📋 Coller</button>
+      </div>
+    </section>
+
+    <!-- ACTIONS -->
+    <div class="actions-row">
+      <button id="mainBtn" class="action-btn forge" onclick="generatePWA()">
+        <span id="loader" class="hidden">⟳</span>
+        <svg id="forgeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M14.7 6.3a4 4 0 0 0-5.65 5.65l-5.7 5.7a2 2 0 1 0 2.83 2.83l5.7-5.7a4 4 0 0 0 5.65-5.65l-2.12 2.12-2.83-2.83L14.7 6.3Z"/>
+          <path d="m18 2 4 4"/>
+        </svg>
+        <span>Forger</span>
+        <kbd>Ctrl↵</kbd>
+      </button>
+      <button id="injectBtn" class="action-btn inject" onclick="injectPwaToGitHub()">
+        <span>⚡</span>
+        <span>Injecter PWA</span>
+        <kbd>Ctrl⇧↵</kbd>
+      </button>
+    </div>
+
+    <!-- LIVE -->
+    <section id="liveBtn" class="live-inline hidden">
+      <div id="liveOrb" class="led"></div>
+      <div class="live-main">
+        <div class="live-title">
+          <span id="liveStatusTitle">Déploiement</span>
+        </div>
+        <div class="live-sub" id="liveStatusText">Préparation...</div>
+        <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+      </div>
+      <span id="progressPercent" class="progress-pct">0%</span>
+      <button class="live-open" onclick="openLiveSite()">Ouvrir</button>
+    </section>
+
+    <!-- STATUS -->
+    <section id="statusCard" class="status-panel">
+      <div class="status-head">
+        <span class="status-title">Rapport Mastercode</span>
+        <button class="copy-report" onclick="copyReport()">📋 Copier</button>
+      </div>
+      <div id="status" class="status-inner"></div>
+    </section>
+
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="app-footer">
+    <span>Mastercode · Laiche Brahim · Paris · 2026</span>
+    <div class="footer-keys">
+      <span>Raccourcis :</span>
+      <kbd>Ctrl</kbd><kbd>S</kbd>
+      <kbd>Ctrl</kbd><kbd>↵</kbd>
+    </div>
+    <span id="footerStatus" class="footer-status">Prêt</span>
+  </footer>
+</div>
+
+<!-- ===================== SW MODAL ===================== -->
+<div id="swOverlay" class="overlay" onclick="closeSwModal()"></div>
+<div id="swModal" class="modal">
+  <div class="modal-body">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon" style="background:rgba(250,204,21,.1);border-color:rgba(250,204,21,.2);">🧠</div>
+        <div>
+          <div class="modal-sub" style="color:#a16207;">Advanced</div>
+          <div class="modal-title" style="color:#fde68a;">Script personnalisé</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeSwModal()">×</button>
+    </div>
+    <p class="text-[12px] leading-5 text-slate-500 mb-4">Le script sera injecté à la fin du body de l'application générée.</p>
+    <textarea id="customScript" class="custom-script" spellcheck="false" placeholder="// Votre JavaScript personnalisé ici..."></textarea>
+    <div class="grid grid-cols-3 gap-2 mt-4">
+      <button onclick="resetCustomScript()" class="h-11 rounded-lg bg-red-500/5 border border-red-500/15 text-red-400 text-[11px] font-bold uppercase">🗑 Reset</button>
+      <button onclick="saveCustomScript()" class="h-11 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-[11px] font-bold uppercase">💾 Sauver</button>
+      <button onclick="closeSwModal()" class="h-11 rounded-lg bg-white/5 border border-white/10 text-slate-300 text-[11px] font-bold uppercase">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== SESSIONS MODAL ===================== -->
+<div id="sessionsOverlay" class="overlay" onclick="closeSessionsModal()"></div>
+<div id="sessionsModal" class="modal">
+  <div class="modal-body">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon">📁</div>
+        <div>
+          <div class="modal-sub">Sessions</div>
+          <div class="modal-title">Mes projets sauvegardés</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeSessionsModal()">×</button>
+    </div>
+    <p class="text-[12px] leading-5 text-slate-500 mb-4">
+      Chaque projet est sauvegardé automatiquement avec son nom, son HTML et son icône.
+    </p>
+    <button onclick="saveCurrentAsSession()" class="w-full h-11 rounded-lg bg-indigo-500/10 border border-indigo-500/25 text-indigo-300 text-[11px] font-bold uppercase mb-4">
+      💾 Sauvegarder le projet actuel
+    </button>
+    <div class="session-list" id="sessionList"></div>
+  </div>
+</div>
+
+<!-- ===================== SHORTCUTS MODAL ===================== -->
+<div id="shortcutsOverlay" class="overlay" onclick="closeShortcutsModal()"></div>
+<div id="shortcutsModal" class="modal" style="max-width:560px;">
+  <div class="modal-body">
+    <div class="modal-head">
+      <div class="modal-head-left">
+        <div class="modal-icon">⌨</div>
+        <div>
+          <div class="modal-sub">Aide</div>
+          <div class="modal-title">Raccourcis clavier</div>
+        </div>
+      </div>
+      <button class="modal-close" onclick="closeShortcutsModal()">×</button>
+    </div>
+    <div class="shortcuts-grid">
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Actions</div>
+        <div class="shortcut-row"><span>Forger la PWA</span><span class="keys"><kbd>Ctrl</kbd><kbd>↵</kbd></span></div>
+        <div class="shortcut-row"><span>Injecter PWA</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>↵</kbd></span></div>
+        <div class="shortcut-row"><span>Sauvegarder</span><span class="keys"><kbd>Ctrl</kbd><kbd>S</kbd></span></div>
+      </div>
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Navigation</div>
+        <div class="shortcut-row"><span>Champ token</span><span class="keys"><kbd>Ctrl</kbd><kbd>K</kbd></span></div>
+        <div class="shortcut-row"><span>Nom projet</span><span class="keys"><kbd>Ctrl</kbd><kbd>⇧</kbd><kbd>K</kbd></span></div>
+        <div class="shortcut-row"><span>Éditeur HTML</span><span class="keys"><kbd>Ctrl</kbd><kbd>B</kbd></span></div>
+      </div>
+      <div class="shortcut-group">
+        <div class="shortcut-group-title">Panneaux</div>
+        <div class="shortcut-row"><span>Script perso</span><span class="keys"><kbd>Ctrl</kbd><kbd>,</kbd></span></div>
+        <div class="shortcut-row"><span>Aide</span><span class="keys"><kbd>?</kbd></span></div>
+        <div class="shortcut-row"><span>Fermer</span><span class="keys"><kbd>Esc</kbd></span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<canvas id="canvas" class="hidden"></canvas>
+
+<script>
+/* ========================================================= DOM ========================================================= */
+const byId = id => document.getElementById(id);
+
+/* ========================================================= CONSTANTES ========================================================= */
+const GH_API = 'https://api.github.com';
+const LT = '<';
+const TAG_S = LT+'script>';
+const TAG_E = LT+'/'+'script>';
+const HEAD_O = LT+'head>';
+const HEAD_C = LT+'/'+'head>';
+const BODY_C = LT+'/'+'body>';
+const DOCTYPE = LT+'!DOCTYPE html>';
+const MARK_START = LT+'!-- mastercode:custom:start -->';
+const MARK_END = LT+'!-- mastercode:custom:end -->';
+const PROGRESS_DURATION = 45000;
+const MAX_LOG_LINES = 8;
+const FETCH_TIMEOUT_MS = 25000;
+const DEFAULT_BG = '#050608';
+
+const SPLASH_SIZES = [
+  [1320,2868,440,956,3],[1206,2622,402,874,3],[1290,2796,430,932,3],
+  [1179,2556,393,852,3],[1284,2778,428,926,3],[1170,2532,390,844,3],
+  [1242,2688,414,896,3],[828,1792,414,896,2],[1125,2436,375,812,3],
+  [1242,2208,414,736,3],[750,1334,375,667,2],[640,1136,320,568,2]
+];
+
+const LS_KEYS = {
+  TOKEN: 'mastercode_token',
+  APP_NAME: 'mastercode_app_name',
+  HTML: 'mastercode_html',
+  ICON_512: 'mastercode_icon_512',
+  ICON_192: 'mastercode_icon_192',
+  ICON_PREVIEW: 'mastercode_icon_preview',
+  ICON_BG: 'mastercode_icon_bg',
+  CUSTOM_SCRIPT: 'mastercode_custom_script',
+  SESSIONS: 'mastercode_sessions'
+};
+
+const KNOWN_DEPENDENCIES = {
+  '$': { name: 'jQuery', pattern: /(?:^|[^.\w])\$\s*\(/, test: /jquery/i, cdn: '<'+'script src="https://code.jquery.com/jquery-3.7.1.min.js"><'+'/script>' },
+  'jQuery': { name: 'jQuery', pattern: /(?:^|[^.\w])jQuery\s*\(/, test: /jquery/i, cdn: '<'+'script src="https://code.jquery.com/jquery-3.7.1.min.js"><'+'/script>' },
+  '_': { name: 'Lodash', pattern: /(?:^|[^.\w])_\s*\./, test: /lodash/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"><'+'/script>' },
+  'Vue': { name: 'Vue.js', pattern: /(?:^|[^.\w])Vue\s*\./, test: /vue/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/vue@3/dist/vue.global.prod.js"><'+'/script>' },
+  'React': { name: 'React', pattern: /(?:^|[^.\w])React\s*\./, test: /react/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/react@18/umd/react.production.min.js"><'+'/script>'+'\n<'+'script src="https://cdn.jsdelivr.net/npm/react-dom@18/umd/react-dom.production.min.js"><'+'/script>' },
+  'Alpine': { name: 'Alpine.js', pattern: /(?:^|[^.\w])Alpine\s*\./, test: /alpine/i, cdn: '<'+'script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"><'+'/script>' },
+  'axios': { name: 'Axios', pattern: /(?:^|[^.\w])axios\s*\./, test: /axios/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/axios@1.6.0/dist/axios.min.js"><'+'/script>' },
+  'Chart': { name: 'Chart.js', pattern: /(?:^|[^.\w])Chart\s*\(/, test: /chart\.?js/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/chart.js"><'+'/script>' },
+  'gsap': { name: 'GSAP', pattern: /(?:^|[^.\w])gsap\s*\./, test: /gsap/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"><'+'/script>' },
+  'THREE': { name: 'Three.js', pattern: /(?:^|[^.\w])THREE\s*\./, test: /three/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"><'+'/script>' },
+  'anime': { name: 'Anime.js', pattern: /(?:^|[^.\w])anime\s*\(/, test: /anime/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"><'+'/script>' },
+  'luxon': { name: 'Luxon', pattern: /(?:^|[^.\w])luxon\s*\./, test: /luxon/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/luxon@3.4.4/build/global/luxon.min.js"><'+'/script>' },
+  'dayjs': { name: 'Day.js', pattern: /(?:^|[^.\w])dayjs\s*\(/, test: /dayjs/i, cdn: '<'+'script src="https://cdn.jsdelivr.net/npm/dayjs@1/dayjs.min.js"><'+'/script>' }
+};
+
+/* ========================================================= STORAGE ========================================================= */
+const store = (() => {
+  const mem = {}; let ls = null;
+  try { ls = localStorage; ls.setItem('__mc_test','1'); ls.removeItem('__mc_test'); } catch(e){ ls = null; }
+  return {
+    getItem(k){ try{ if(ls) return ls.getItem(k); }catch(e){} return Object.prototype.hasOwnProperty.call(mem,k) ? mem[k] : null; },
+    setItem(k,v){ try{ if(ls){ ls.setItem(k,v); return; } }catch(e){} mem[k]=String(v); },
+    removeItem(k){ try{ if(ls) ls.removeItem(k); }catch(e){} delete mem[k]; }
+  };
+})();
+
+/* ========================================================= STATE ========================================================= */
+let liveOwner = '';
+let liveRepo = '';
+let deploymentInterval = null;
+let progressInterval = null;
+let icon512 = '';
+let icon192 = '';
+let iconBg = '';
+let isForgeRunning = false;
+let isInjectRunning = false;
+
+/* ========================================================= HAPTIC ========================================================= */
+function haptic(ms=10){ try{ if(navigator.vibrate) navigator.vibrate(ms); }catch(e){} }
+
+/* ========================================================= SAVE INDICATOR ========================================================= */
+let saveIndicatorTimer = null;
+function showSaveIndicator(){
+  const ind = byId('saveIndicator');
+  if(!ind) return;
+  ind.classList.add('show');
+  clearTimeout(saveIndicatorTimer);
+  saveIndicatorTimer = setTimeout(() => { ind.classList.remove('show'); }, 800);
+}
+
+/* ========================================================= FOOTER STATUS ========================================================= */
+function setFooterStatus(msg, type=''){
+  const el = byId('footerStatus');
+  if(!el) return;
+  el.textContent = msg;
+  el.className = 'footer-status' + (type ? ' ' + type : '');
+}
+
+/* ========================================================= TOAST ========================================================= */
+function toast(message, error=false){
+  const old = byId('toast'); if(old) old.remove();
+  const el = document.createElement('div');
+  el.id = 'toast';
+  el.style.cssText = `
+    position:fixed; z-index:99999; top:66px; left:50%; transform:translateX(-50%);
+    padding:10px 16px; border-radius:10px;
+    color:${error?'#fca5a5':'#86efac'};
+    background:rgba(15,23,42,.95);
+    border:1px solid ${error?'rgba(239,68,68,.3)':'rgba(34,197,94,.3)'};
+    box-shadow:0 15px 40px rgba(0,0,0,.5);
+    font-size:12px; font-weight:600; backdrop-filter:blur(18px);
+    white-space:nowrap; max-width:90vw; overflow:hidden; text-overflow:ellipsis;
+  `;
+  el.textContent = (error?'⚠️ ':'✓ ') + message;
+  document.body.appendChild(el);
+  clearTimeout(toast.timer);
+  toast.timer = setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transition = '.25s';
+    setTimeout(() => el.remove(), 250);
+  }, 3500);
+}
+
+/* ========================================================= STATUS LOG ========================================================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function classifyLog(msg){
+  const m = msg.trim();
+  if(m.startsWith('✅') || /réussie|terminé|déployé|accessible|injecté|forgée/i.test(m)) return 'ok';
+  if(m.startsWith('⚠️')) return 'warn';
+  if(m.startsWith('❌') || /erreur/i.test(m)) return 'err';
+  if(m.startsWith('---')) return 'info';
+  if(/Upload|Activation|Création|Authentification|Injection|Génération/i.test(m)) return 'info';
+  return '';
+}
+function updateStatus(message, clear=false){
+  const card = byId('statusCard');
+  const status = byId('status');
+  card.classList.remove('hidden');
+  if(clear){ status.innerHTML = ''; }
+  const cls = classifyLog(message);
+  const line = document.createElement('span');
+  line.className = 'log-line';
+  line.innerHTML = `<span class="cmd">&gt;</span> <span class="${cls || 'info'}">${escapeHtml(message)}</span>`;
+  status.appendChild(line);
+  status.appendChild(document.createTextNode('\n'));
+  while(status.childNodes.length > MAX_LOG_LINES*2){
+    status.removeChild(status.firstChild);
+  }
+  requestAnimationFrame(() => { status.scrollTop = status.scrollHeight; });
+}
+
+async function copyReport(){
+  try{ await navigator.clipboard.writeText(byId('status').innerText); toast('Rapport copié'); }
+  catch(e){ toast('Copie impossible', true); }
+}
+
+/* ========================================================= TOKEN VIEW ========================================================= */
+function toggleView(id, button){
+  const input = byId(id);
+  if(input.type === 'password'){ input.type = 'text'; button.textContent = 'CACHER'; }
+  else { input.type = 'password'; button.textContent = 'VOIR'; }
+}
+
+async function pasteToken(){
+  try{
+    const text = (await navigator.clipboard.readText()).trim();
+    if(!text){ toast('Presse-papier vide', true); return; }
+    byId('ghToken').value = text;
+    store.setItem(LS_KEYS.TOKEN, text);
+    showSaveIndicator();
+    toast('Token collé');
+  }catch(e){ toast('Autorisation presse-papier refusée', true); }
+}
+
+async function pasteHTML(){
+  try{
+    const text = await navigator.clipboard.readText();
+    if(!text){ toast('Presse-papier vide', true); return; }
+    byId('htmlInput').value = text;
+    store.setItem(LS_KEYS.HTML, text);
+    updateHtmlMeta();
+    toast('Code HTML collé');
+    byId('htmlInput').focus();
+  }catch(e){ toast('Autorisation presse-papier refusée', true); }
+}
+
+function clearAllData(){
+  if(confirm('Supprimer le token GitHub enregistré ?\n\nVotre code HTML, votre icône et votre script personnalisé seront conservés.')){
+    store.removeItem(LS_KEYS.TOKEN);
+    byId('ghToken').value = '';
+    toast('Clé effacée');
+  }
+}
+
+/* ========================================================= INPUT HANDLERS ========================================================= */
+function onTokenInput(val){ store.setItem(LS_KEYS.TOKEN, val); showSaveIndicator(); }
+function onAppNameInput(val){ store.setItem(LS_KEYS.APP_NAME, val); showSaveIndicator(); }
+let htmlSaveTimer = null;
+function onHtmlInput(){
+  clearTimeout(htmlSaveTimer);
+  htmlSaveTimer = setTimeout(() => {
+    store.setItem(LS_KEYS.HTML, byId('htmlInput').value);
+    updateHtmlMeta();
+    showSaveIndicator();
+  }, 400);
+}
+function updateHtmlMeta(){
+  const code = byId('htmlInput').value;
+  const lines = code ? code.split('\n').length : 0;
+  const size = (new Blob([code]).size / 1024).toFixed(1);
+  byId('htmlMeta').textContent = lines + ' l · ' + size + ' Ko';
+}
+
+/* ========================================================= COULEUR DE FOND ========================================================= */
+function isHex(c){ return /^#[0-9a-f]{6}$/i.test(c || ''); }
+function getBg(){ return isHex(iconBg) ? iconBg.toLowerCase() : DEFAULT_BG; }
+function toHex(r,g,b){
+  return '#' + [r,g,b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2,'0')).join('');
+}
+function updateBgPicker(){
+  byId('bgPick').classList.toggle('show', !!icon512);
+  byId('iconBgInput').value = getBg();
+}
+function onIconBgInput(val){
+  if(!isHex(val)) return;
+  iconBg = val.toLowerCase();
+  store.setItem(LS_KEYS.ICON_BG, iconBg);
+  showSaveIndicator();
+}
+function detectIconBg(){
+  const canvas = byId('canvas');
+  const size = canvas.width;
+  let data;
+  try{ data = canvas.getContext('2d').getImageData(0,0,size,size).data; }
+  catch(e){ return null; }
+  const band = Math.max(2, Math.round(size*0.02));
+  const buckets = new Map();
+  let total = 0, transparent = 0;
+  const add = (x,y) => {
+    const i = (y*size + x)*4;
+    total++;
+    if(data[i+3] < 200){ transparent++; return; }
+    const key = ((data[i]>>3)<<10) | ((data[i+1]>>3)<<5) | (data[i+2]>>3);
+    let b = buckets.get(key);
+    if(!b){ b = { n:0, r:0, g:0, b:0 }; buckets.set(key,b); }
+    b.n++; b.r += data[i]; b.g += data[i+1]; b.b += data[i+2];
+  };
+  for(let t=0;t<size;t++){
+    for(let k=0;k<band;k++){
+      add(t,k); add(t,size-1-k); add(k,t); add(size-1-k,t);
+    }
+  }
+  if(!buckets.size || transparent > total*0.5) return null;
+  let best = null;
+  buckets.forEach(b => { if(!best || b.n > best.n) best = b; });
+  return toHex(best.r/best.n, best.g/best.n, best.b/best.n);
+}
+
+/* ========================================================= ICON ========================================================= */
+function renderIcon(img, size){
+  const canvas = byId('canvas'); const ctx = canvas.getContext('2d');
+  canvas.width = size; canvas.height = size;
+  const side = Math.min(img.width, img.height);
+  const sx = (img.width-side)/2; const sy = (img.height-side)/2;
+  ctx.clearRect(0,0,size,size);
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+  return canvas.toDataURL('image/png');
+}
+function previewIcon(input){
+  const file = input.files && input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const url512 = renderIcon(img, 512);
+      const detected = detectIconBg();
+      const url192 = renderIcon(img, 192);
+      icon512 = url512.split(',')[1];
+      icon192 = url192.split(',')[1];
+      iconBg = detected || '';
+      byId('iconPreview').src = url512;
+      byId('iconPreviewWrap').classList.remove('hidden');
+      byId('iconClear').classList.add('show');
+      byId('iconZone').classList.add('has-icon');
+      store.setItem(LS_KEYS.ICON_512, icon512);
+      store.setItem(LS_KEYS.ICON_192, icon192);
+      store.setItem(LS_KEYS.ICON_PREVIEW, url512);
+      if(iconBg) store.setItem(LS_KEYS.ICON_BG, iconBg); else store.removeItem(LS_KEYS.ICON_BG);
+      updateBgPicker();
+      toast(detected ? 'Icône enregistrée · fond ' + detected : 'Icône enregistrée · fond par défaut');
+    };
+    img.onerror = () => { toast('Image illisible', true); };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function clearIcon(){
+  if(!confirm('Supprimer l\'icône enregistrée ?')) return;
+  icon512 = ''; icon192 = ''; iconBg = '';
+  byId('iconInput').value = '';
+  byId('iconPreview').src = '';
+  byId('iconPreviewWrap').classList.add('hidden');
+  byId('iconClear').classList.remove('show');
+  byId('iconZone').classList.remove('has-icon');
+  store.removeItem(LS_KEYS.ICON_512);
+  store.removeItem(LS_KEYS.ICON_192);
+  store.removeItem(LS_KEYS.ICON_PREVIEW);
+  store.removeItem(LS_KEYS.ICON_BG);
+  updateBgPicker();
+  toast('Icône supprimée');
+}
+
+/* ========================================================= DÉPENDANCES ========================================================= */
+function detectDependencies(silent=false){
+  try {
+    const code = byId('htmlInput').value;
+    if(!code.trim()) return { missing: [] };
+    const found = [];
+    const codeLower = code.toLowerCase();
+    Object.keys(KNOWN_DEPENDENCIES).forEach(varName => {
+      const dep = KNOWN_DEPENDENCIES[varName];
+      if(!dep.pattern.test(code)) return;
+      if(dep.test.test(codeLower)) return;
+      if(!found.find(x => x.name === dep.name)){
+        found.push({ varName, name: dep.name, cdn: dep.cdn });
+      }
+    });
+    if(found.length && !silent){
+      if(confirm(
+        '⚠️ Dépendances manquantes détectées :\n\n' +
+        found.map(f => '• ' + f.name + ' (utilise ' + f.varName + ')').join('\n') +
+        '\n\nVoulez-vous injecter automatiquement les CDN dans le <head> ?'
+      )){
+        injectDependencies(found);
+      }
+    }
+    return { missing: found };
+  } catch (e) {
+    console.warn('detectDependencies error:', e);
+    return { missing: [] };
+  }
+}
+function injectDependencies(deps){
+  try {
+    let code = byId('htmlInput').value;
+    const scripts = deps.map(d => d.cdn).join('\n');
+    if(/<\/head>/i.test(code)){
+      code = code.replace(/<\/head>/i, scripts + '\n</head>');
+    } else if(/<head[\s>]/i.test(code)){
+      code = code.replace(/(<head[^>]*>)/i, '$1\n' + scripts);
+    } else if(/<html[\s>]/i.test(code)){
+      code = code.replace(/(<html[^>]*>)/i, '$1\n<head>\n' + scripts + '\n</head>');
+    } else {
+      code = DOCTYPE + '\n<head>\n' + scripts + '\n</head>\n<body>\n' + code + '\n
+<script>if('serviceWorker' in navigator){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));}</script>
+</body>';
+    }
+    byId('htmlInput').value = code;
+    store.setItem(LS_KEYS.HTML, code);
+    updateHtmlMeta();
+    toast(deps.length + ' CDN injecté(s)');
+    updateStatus('⚡ CDN injecté(s) : ' + deps.map(d => d.name).join(', '));
+  } catch (e) {
+    console.warn('injectDependencies error:', e);
+    toast('Erreur injection CDN', true);
+  }
+}
+
+/* ========================================================= MODALS ========================================================= */
+function openSwModal(){
+  byId('customScript').value = store.getItem(LS_KEYS.CUSTOM_SCRIPT) || '';
+  byId('swModal').classList.add('open');
+  byId('swOverlay').classList.add('open');
+}
+function closeSwModal(){
+  byId('swModal').classList.remove('open');
+  byId('swOverlay').classList.remove('open');
+}
+function saveCustomScript(){
+  store.setItem(LS_KEYS.CUSTOM_SCRIPT, byId('customScript').value);
+  toast('Script personnalisé sauvegardé');
+  closeSwModal();
+}
+function resetCustomScript(){
+  if(confirm('Supprimer le script personnalisé ?')){
+    store.removeItem(LS_KEYS.CUSTOM_SCRIPT);
+    byId('customScript').value = '';
+    toast('Script réinitialisé');
+    closeSwModal();
+  }
+}
+function openSessionsModal(){ renderSessionsModal(); byId('sessionsModal').classList.add('open'); byId('sessionsOverlay').classList.add('open'); }
+function closeSessionsModal(){ byId('sessionsModal').classList.remove('open'); byId('sessionsOverlay').classList.remove('open'); }
+function openShortcutsModal(){ byId('shortcutsModal').classList.add('open'); byId('shortcutsOverlay').classList.add('open'); }
+function closeShortcutsModal(){ byId('shortcutsModal').classList.remove('open'); byId('shortcutsOverlay').classList.remove('open'); }
+function toggleSidebar(){ byId('sidebar').classList.toggle('open'); }
+
+/* ========================================================= SESSIONS ========================================================= */
+function getSessions(){
+  try {
+    const raw = store.getItem(LS_KEYS.SESSIONS);
+    if(!raw) return [];
+    return JSON.parse(raw);
+  } catch(e){ return []; }
+}
+function setSessions(arr){
+  try { store.setItem(LS_KEYS.SESSIONS, JSON.stringify(arr)); } catch(e){}
+}
+function renderSessions(){ renderSessionsSidebar(); renderSessionsModal(); }
+
+function renderSessionsSidebar(){
+  const list = byId('sessionListSidebar');
+  if(!list) return;
+  const sessions = getSessions();
+  list.innerHTML = '';
+  if(sessions.length === 0){
+    list.innerHTML = '<div class="empty-state">Aucun projet<br>sauvegardé</div>';
+    return;
+  }
+  const currentName = byId('appName').value.trim();
+  sessions.forEach((s, idx) => {
+    const item = document.createElement('div');
+    item.className = 'session-mini' + (s.name === currentName ? ' active' : '');
+    const date = new Date(s.savedAt);
+    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
+    const size = s.html ? (new Blob([s.html]).size / 1024).toFixed(1) : '0';
+    const thumb = s.iconPreview ? `<img src="${s.iconPreview}" alt="">` : '📄';
+    item.innerHTML = `
+      <div class="session-mini-icon">${thumb}</div>
+      <div class="session-mini-info">
+        <div class="session-mini-name">${escapeHtml(s.name || 'Sans nom')}</div>
+        <div class="session-mini-meta">${dateStr} · ${size} Ko</div>
+      </div>
+      <button class="session-mini-delete" data-idx="${idx}" title="Supprimer">✕</button>
+    `;
+    item.onclick = (e) => { if(e.target.closest('.session-mini-delete')) return; loadSession(idx); };
+    item.querySelector('.session-mini-delete').onclick = (e) => { e.stopPropagation(); deleteSession(idx); };
+    list.appendChild(item);
+  });
+}
+
+function renderSessionsModal(){
+  const list = byId('sessionList');
+  const sessions = getSessions();
+  list.innerHTML = '';
+  if(sessions.length === 0){
+    list.innerHTML = '<div style="text-align:center;color:#64748b;font-size:12px;padding:24px;">Aucun projet sauvegardé</div>';
+    return;
+  }
+  sessions.forEach((s, idx) => {
+    const item = document.createElement('div');
+    item.className = 'session-item';
+    const date = new Date(s.savedAt);
+    const dateStr = date.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', hour: '2-digit', minute: '2-digit' });
+    const size = s.html ? (new Blob([s.html]).size / 1024).toFixed(1) : '0';
+    const hasIcon = s.icon512 ? ' · 🖼' : '';
+    item.innerHTML = `
+      <div class="session-info">
+        <div class="session-name">${escapeHtml(s.name || 'Sans nom')}</div>
+        <div class="session-meta">${dateStr} · ${size} Ko${hasIcon}</div>
+      </div>
+      <button class="session-delete" data-idx="${idx}" title="Supprimer">✕</button>
+    `;
+    item.onclick = (e) => { if(e.target.closest('.session-delete')) return; loadSession(idx); };
+    item.querySelector('.session-delete').onclick = (e) => { e.stopPropagation(); deleteSession(idx); };
+    list.appendChild(item);
+  });
+}
+
+function saveCurrentAsSession(){
+  const name = byId('appName').value.trim();
+  if(!name){ toast('Nom du projet manquant', true); return; }
+  const html = byId('htmlInput').value;
+  const sessions = getSessions();
+  const existingIdx = sessions.findIndex(s => s.name === name);
+  const entry = {
+    name, html,
+    icon512: icon512 || '',
+    icon192: icon192 || '',
+    iconBg: iconBg || '',
+    iconPreview: byId('iconPreview').src || '',
+    savedAt: Date.now()
+  };
+  if(existingIdx !== -1){
+    sessions[existingIdx] = entry;
+    toast('Projet "' + name + '" mis à jour');
+  } else {
+    sessions.unshift(entry);
+    toast('Projet "' + name + '" sauvegardé');
+  }
+  if(sessions.length > 20) sessions.length = 20;
+  setSessions(sessions);
+  renderSessions();
+}
+
+function loadSession(idx){
+  const sessions = getSessions();
+  const s = sessions[idx];
+  if(!s) return;
+  byId('appName').value = s.name || '';
+  byId('htmlInput').value = s.html || '';
+  store.setItem(LS_KEYS.APP_NAME, s.name || '');
+  store.setItem(LS_KEYS.HTML, s.html || '');
+  if(s.icon512 && s.icon192){
+    icon512 = s.icon512; icon192 = s.icon192;
+    iconBg = isHex(s.iconBg) ? s.iconBg : '';
+    byId('iconPreview').src = s.iconPreview || ('data:image/png;base64,' + s.icon512);
+    byId('iconPreviewWrap').classList.remove('hidden');
+    byId('iconClear').classList.add('show');
+    byId('iconZone').classList.add('has-icon');
+    store.setItem(LS_KEYS.ICON_512, s.icon512);
+    store.setItem(LS_KEYS.ICON_192, s.icon192);
+    store.setItem(LS_KEYS.ICON_PREVIEW, byId('iconPreview').src);
+    if(iconBg) store.setItem(LS_KEYS.ICON_BG, iconBg); else store.removeItem(LS_KEYS.ICON_BG);
+  } else {
+    icon512 = ''; icon192 = ''; iconBg = '';
+    byId('iconPreviewWrap').classList.add('hidden');
+    byId('iconClear').classList.remove('show');
+    byId('iconZone').classList.remove('has-icon');
+    store.removeItem(LS_KEYS.ICON_BG);
+  }
+  updateBgPicker();
+  updateHtmlMeta();
+  closeSessionsModal();
+  renderSessionsSidebar();
+  toast('Projet "' + s.name + '" chargé');
+  updateStatus('✅ Projet "' + s.name + '" chargé');
+}
+
+function deleteSession(idx){
+  if(!confirm('Supprimer ce projet ?')) return;
+  const sessions = getSessions();
+  const name = sessions[idx]?.name || 'Projet';
+  sessions.splice(idx, 1);
+  setSessions(sessions);
+  renderSessions();
+  toast('Projet "' + name + '" supprimé');
+}
+
+/* ========================================================= UTILS ========================================================= */
+function utf8ToBase64(str){
+  const bytes = new TextEncoder().encode(str);
+  let binary = ''; const chunk = 0x8000;
+  for(let i=0;i<bytes.length;i+=chunk){
+    binary += String.fromCharCode.apply(null, bytes.subarray(i,i+chunk));
+  }
+  return btoa(binary);
+}
+function sanitizeRepoName(name){
+  return name.trim().replace(/\s+/g,'-').replace(/[^A-Za-z0-9._-]/g,'').replace(/^\.+/,'');
+}
+function ghHeaders(token){
+  return {
+    Authorization: `Bearer ${token}`,
+    Accept: 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28',
+    'Content-Type': 'application/json'
+  };
+}
+async function ghFetch(url, options = {}){
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT_MS);
+  try {
+    const resp = await fetch(url, { ...options, signal: controller.signal });
+    clearTimeout(timeout);
+    return resp;
+  } catch (e) {
+    clearTimeout(timeout);
+    if (e.name === 'AbortError') throw new Error('Timeout : GitHub n\'a pas répondu');
+    throw e;
+  }
+}
+async function ghErrorMessage(resp){
+  try{ const data = await resp.json(); return data.message || `HTTP ${resp.status}`; }
+  catch(e){ return `HTTP ${resp.status}`; }
+}
+
+/* ========================================================= GITHUB API ========================================================= */
+async function getOwner(token){
+  const resp = await ghFetch(`${GH_API}/user`, { headers: ghHeaders(token) });
+  if(!resp.ok){
+    if(resp.status === 401) throw new Error('Token invalide ou expiré');
+    throw new Error('Accès GitHub refusé');
+  }
+  return (await resp.json()).login;
+}
+async function ensureRepo(token, owner, repo){
+  const check = await ghFetch(`${GH_API}/repos/${owner}/${repo}`, { headers: ghHeaders(token) });
+  if(check.status === 200) return;
+  if(check.status !== 404){ throw new Error(`Dépôt inaccessible : ${await ghErrorMessage(check)}`); }
+  updateStatus('Création du dépôt GitHub...');
+  const create = await ghFetch(`${GH_API}/user/repos`, {
+    method: 'POST', headers: ghHeaders(token),
+    body: JSON.stringify({ name: repo, auto_init: true })
+  });
+  if(!create.ok){ throw new Error(`Création du dépôt échouée : ${await ghErrorMessage(create)}`); }
+}
+async function getFileSha(token, owner, repo, path){
+  const resp = await ghFetch(`${GH_API}/repos/${owner}/${repo}/contents/${path}`, { headers: ghHeaders(token) });
+  if(resp.status === 200) return (await resp.json()).sha;
+  if(resp.status === 404) return null;
+  throw new Error(`Lecture de ${path} impossible : ${await ghErrorMessage(resp)}`);
+}
+async function putFile(token, owner, repo, path, contentB64, message){
+  const sha = await getFileSha(token, owner, repo, path);
+  const body = { message, content: contentB64 };
+  if(sha) body.sha = sha;
+  const resp = await ghFetch(`${GH_API}/repos/${owner}/${repo}/contents/${path}`, {
+    method: 'PUT', headers: ghHeaders(token), body: JSON.stringify(body)
+  });
+  if(!resp.ok){ throw new Error(`Upload de ${path} échoué : ${await ghErrorMessage(resp)}`); }
+}
+async function ensurePages(token, owner, repo){
+  const resp = await ghFetch(`${GH_API}/repos/${owner}/${repo}/pages`, {
+    method: 'POST', headers: ghHeaders(token),
+    body: JSON.stringify({ source: { branch: 'main', path: '/' } })
+  });
+  if(resp.ok || resp.status === 409) return;
+  throw new Error(`Activation de GitHub Pages échouée : ${await ghErrorMessage(resp)}`);
+}
+
+/* ========================================================= HTML UTILS ========================================================= */
+function insertInHead(html, block){
+  const close = html.search(new RegExp(LT+'/head>', 'i'));
+  if(close !== -1){ return html.slice(0, close) + block + '\n' + html.slice(close); }
+  const headOpen = html.match(new RegExp(LT+'head[^>]*>', 'i'));
+  if(headOpen){ const i = headOpen.index + headOpen[0].length; return html.slice(0,i) + '\n' + block + html.slice(i); }
+  const htmlOpen = html.match(new RegExp(LT+'html[^>]*>', 'i'));
+  if(htmlOpen){ const i = htmlOpen.index + htmlOpen[0].length; return html.slice(0,i) + '\n' + HEAD_O + '\n' + block + '\n' + HEAD_C + html.slice(i); }
+  return HEAD_O + '\n' + block + '\n' + HEAD_C + '\n' + html;
+}
+function insertBeforeBodyEnd(html, block){
+  const i = html.toLowerCase().lastIndexOf(BODY_C);
+  if(i === -1) return html + '\n' + block + '\n';
+  return html.slice(0,i) + block + '\n' + html.slice(i);
+}
+function fixTailwindConfig(html){
+  if(!/tailwind\.config\s*=/.test(html)) return html;
+  return html.replace(
+    /(?:^|[^.\w])tailwind\.config\s*=\s*(\{[\s\S]*?\})\s*;?/g,
+    (match, obj) => `window.tailwind = window.tailwind || {}; window.tailwind.config = ${obj};`
+  );
+}
+
+/* ========================================================= SPLASH iOS ========================================================= */
+function splashLinks(){
+  return SPLASH_SIZES.map(([pw,ph,w,h,r]) =>
+    LT+'link rel="apple-touch-startup-image" media="(device-width: '+w+'px) and (device-height: '+h+'px) and (-webkit-device-pixel-ratio: '+r+') and (orientation: portrait)" href="./splash-'+pw+'x'+ph+'.png">'
+  ).join('\n');
+}
+function loadImage(src){
+  return new Promise((resolve, reject) => {
+    const im = new Image();
+    im.onload = () => resolve(im);
+    im.onerror = () => reject(new Error('Icône illisible pour le splash'));
+    im.src = src;
+  });
+}
+async function buildSplashImages(){
+  const img = await loadImage('data:image/png;base64,' + icon512);
+  const bg = getBg();
+  return SPLASH_SIZES.map(([pw,ph]) => {
+    const c = document.createElement('canvas');
+    c.width = pw; c.height = ph;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0,0,pw,ph);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    const s = Math.round(Math.min(pw,ph)*0.32);
+    ctx.drawImage(img, Math.round((pw-s)/2), Math.round((ph-s)/2), s, s);
+    return { path: 'splash-'+pw+'x'+ph+'.png', content: c.toDataURL('image/png').split(',')[1] };
+  });
+}
+
+/* ========================================================= BUILD ========================================================= */
+function buildPwaHtml(source){
+  let html = source;
+  html = fixTailwindConfig(html);
+  const oldBlock = new RegExp(MARK_START + '[\\s\\S]*?' + MARK_END + '\\n?', 'g');
+  html = html.replace(oldBlock, '');
+  const bg = getBg();
+  const headTags = [];
+  if(!/<link[^>]+rel=["']manifest["']/i.test(html)) headTags.push('<link rel="manifest" href="./manifest.json">');
+  if(!/<meta[^>]+name=["']viewport["']/i.test(html)) headTags.push('<meta name="viewport" content="width=device-width,initial-scale=1">');
+  if(!/<meta[^>]+name=["']theme-color["']/i.test(html)) headTags.push('<meta name="theme-color" content="'+bg+'">');
+  if(!/<meta[^>]+name=["']apple-mobile-web-app-capable["']/i.test(html)) headTags.push('<meta name="apple-mobile-web-app-capable" content="yes">');
+  if(!/<meta[^>]+name=["']apple-mobile-web-app-status-bar-style["']/i.test(html)) headTags.push('<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">');
+  if(!/<link[^>]+rel=["']apple-touch-icon["']/i.test(html)) headTags.push('<link rel="apple-touch-icon" href="./icon.png">');
+  if(icon512 && !/apple-touch-startup-image/i.test(html)) headTags.push(splashLinks());
+  if(headTags.length) html = insertInHead(html, headTags.join('\n'));
+  const blocks = [];
+  const custom = (store.getItem(LS_KEYS.CUSTOM_SCRIPT) || '').trim();
+  if(custom){
+    const safeCustom = custom.replace(/<\/script/gi, '<\\/script');
+    blocks.push(`${MARK_START} ${TAG_S} ${safeCustom} ${TAG_E} ${MARK_END}`);
+  }
+  if(!/serviceWorker\.register/i.test(html)){
+    blocks.push(TAG_S + '\n' +
+      "if ('serviceWorker' in navigator) {\n"+
+      "window.addEventListener('load',()=>{\n"+
+      "navigator.serviceWorker.register('./sw.js').catch(err=>console.error(err));\n"+
+      "});\n"+
+      "}\n"+ TAG_E);
+  }
+  if(blocks.length) html = insertBeforeBodyEnd(html, blocks.join('\n'));
+  if(!/^\s*<!doctype/i.test(html)) html = DOCTYPE + '\n' + html;
+  return { html, hasCustom: !!custom };
+}
+
+function buildManifest(appName){
+  const bg = getBg();
+  return JSON.stringify({
+    name: appName, short_name: appName, start_url: './', scope: './',
+    display: 'standalone', background_color: bg, theme_color: bg,
+    icons: [
+      { src: 'icon-192.png', sizes: '192x192', type: 'image/png', purpose: 'any' },
+      { src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'any' },
+      { src: 'icon.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
+    ]
+  }, null, 2);
+}
+
+function buildServiceWorker(appName){
+  const prefix = appName + '-';
+  const cacheName = prefix + 'v' + Date.now();
+  return [
+    `const PREFIX=${JSON.stringify(prefix)};`,
+    `const CACHE=${JSON.stringify(cacheName)};`,
+    `const ASSETS=['./','./index.html','./manifest.json','./icon.png','./icon-192.png'];`,
+    `self.addEventListener('install',e=>{ self.skipWaiting(); e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS))); });`,
+    `self.addEventListener('activate',e=>{ e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k.startsWith(PREFIX)&&k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())); });`,
+    `self.addEventListener('fetch',e=>{ const req=e.request; if(req.method!=='GET'||new URL(req.url).origin!==self.location.origin)return; e.respondWith(fetch(req).then(res=>{const copy=res.clone();caches.open(CACHE).then(c=>c.put(req,copy));return res;}).catch(()=>caches.match(req).then(r=>r||caches.match('./index.html')))); });`
+  ].join('\n');
+}
+
+/* ========================================================= LED + PROGRESS ========================================================= */
+function setLed(state){
+  const el = byId('liveOrb'); if(!el) return;
+  el.className = 'led ' + (state === 'yellow' ? 'yellow' : state === 'green' ? 'green' : state === 'red' ? 'red' : '');
+}
+function resetProgress(){
+  stopProgress();
+  const bar = byId('progressBar');
+  const pct = byId('progressPercent');
+  bar.classList.remove('done','error');
+  bar.style.width = '0%';
+  pct.textContent = '0%';
+}
+function stopProgress(){
+  if(progressInterval){ clearInterval(progressInterval); progressInterval = null; }
+}
+function startProgress(){
+  resetProgress();
+  const start = Date.now();
+  const bar = byId('progressBar');
+  const pct = byId('progressPercent');
+  progressInterval = setInterval(() => {
+    const elapsed = Date.now() - start;
+    const ratio = Math.min(elapsed / PROGRESS_DURATION, 1);
+    const eased = 1 - Math.pow(1 - ratio, 2.2);
+    const percent = Math.min(95, Math.round(eased * 95));
+    bar.style.width = percent + '%';
+    pct.textContent = percent + '%';
+    if(ratio >= 1){ clearInterval(progressInterval); progressInterval = null; }
+  }, 250);
+}
+function finishProgress(success=true){
+  stopProgress();
+  const bar = byId('progressBar');
+  const pct = byId('progressPercent');
+  if(success){
+    bar.classList.remove('error');
+    bar.classList.add('done');
+    bar.style.width = '100%';
+    pct.textContent = '100%';
+  } else {
+    bar.classList.remove('done');
+    bar.classList.add('error');
+    bar.style.width = '100%';
+    pct.textContent = 'ERR';
+  }
+}
+
+/* ========================================================= LIVE PANEL ========================================================= */
+function showLiveButton(owner, repo){
+  liveOwner = owner; liveRepo = repo;
+  byId('liveBtn').classList.remove('hidden');
+  setLed('yellow');
+  startProgress();
+}
+function stopDeploymentWatch(){
+  if(deploymentInterval) clearInterval(deploymentInterval);
+  deploymentInterval = null;
+}
+async function watchDeployment(token, since){
+  stopDeploymentWatch();
+  const startedAt = Date.now();
+  const maxMs = 4 * 60 * 1000;
+  const tick = async () => {
+    if(Date.now() - startedAt > maxMs){
+      stopDeploymentWatch();
+      setLed('green');
+      finishProgress(true);
+      byId('liveStatusTitle').textContent = 'Application en ligne';
+      byId('liveStatusText').textContent = 'Délai dépassé · site probablement disponible';
+      updateStatus('⚠️ Délai dépassé : le site devrait être disponible.');
+      setFooterStatus('Site probablement disponible', 'ok');
+      return;
+    }
+    try {
+      const res = await ghFetch(`${GH_API}/repos/${liveOwner}/${liveRepo}/actions/runs?per_page=5`, { headers: ghHeaders(token) });
+      if(!res.ok) return;
+      const data = await res.json();
+      const run = (data.workflow_runs || []).find(r => new Date(r.created_at).getTime() >= since - 15000);
+      if(!run) return;
+      if(run.status === 'completed'){
+        stopDeploymentWatch();
+        if(run.conclusion === 'success'){
+          setLed('green');
+          finishProgress(true);
+          byId('liveStatusTitle').textContent = 'Application en ligne';
+          byId('liveStatusText').textContent = 'Déploiement terminé';
+          updateStatus('✅ Site déployé et accessible !');
+          setFooterStatus('Site en ligne', 'ok');
+          toast('Site disponible');
+        } else {
+          setLed('red');
+          finishProgress(false);
+          byId('liveStatusTitle').textContent = 'Erreur de déploiement';
+          byId('liveStatusText').textContent = 'Consultez le rapport';
+          updateStatus(`❌ Déploiement : ${run.conclusion}`);
+          setFooterStatus('Erreur déploiement', 'err');
+        }
+      } else {
+        setLed('yellow');
+        byId('liveStatusTitle').textContent = 'Déploiement en cours';
+        byId('liveStatusText').textContent = 'GitHub Pages prépare votre application';
+        if(!progressInterval) startProgress();
+      }
+    } catch(e){ console.error(e); }
+  };
+  tick();
+  deploymentInterval = setInterval(tick, 4000);
+}
+function openLiveSite(){
+  if(liveOwner && liveRepo){
+    window.open(`https://${liveOwner.toLowerCase()}.github.io/${liveRepo}/`, '_blank', 'noopener');
+  }
+}
+
+/* ========================================================= BUTTONS RESET ========================================================= */
+function resetForgeButton(){
+  byId('mainBtn').disabled = false;
+  byId('forgeIcon').classList.remove('hidden');
+  byId('loader').classList.add('hidden');
+  isForgeRunning = false;
+}
+function resetInjectButton(){
+  byId('injectBtn').disabled = false;
+  isInjectRunning = false;
+}
+
+/* ========================================================= INJECT PWA ========================================================= */
+async function injectPwaToGitHub(){
+  if(isInjectRunning){ toast('Injection déjà en cours', true); return; }
+  const token = byId('ghToken').value.trim();
+  const appName = sanitizeRepoName(byId('appName').value);
+  const source = byId('htmlInput').value.trim();
+  const btn = byId('injectBtn');
+  if(!token){ toast('Token GitHub manquant', true); return; }
+  if(!appName){ toast('Nom du projet manquant', true); return; }
+  if(!source){ toast('Code HTML vide', true); return; }
+  isInjectRunning = true;
+  btn.disabled = true;
+  stopDeploymentWatch();
+  haptic(12);
+  setFooterStatus('Injection…', 'busy');
+  updateStatus('--- INJECTION PWA ---', true);
+  try {
+    try { detectDependencies(true); } catch(e){ console.warn(e); }
+    const owner = await getOwner(token);
+    updateStatus('✅ Authentification GitHub réussie.');
+    await ensureRepo(token, owner, appName);
+    updateStatus('Injection PWA dans index.html...');
+    const { html, hasCustom } = buildPwaHtml(byId('htmlInput').value.trim());
+    if(hasCustom) updateStatus('Script personnalisé inclus.');
+    const since = Date.now();
+    await putFile(token, owner, appName, 'index.html', utf8ToBase64(html), 'feat(pwa): injection Mastercode');
+    const [manifestSha, swSha] = await Promise.all([
+      getFileSha(token, owner, appName, 'manifest.json').catch(() => null),
+      getFileSha(token, owner, appName, 'sw.js').catch(() => null)
+    ]);
+    if(!manifestSha || !swSha){ updateStatus('⚠️ manifest.json ou sw.js absent : utilisez FORGER.'); }
+    await ensurePages(token, owner, appName);
+    updateStatus('✅ index.html mis à jour.');
+    toast('Injection PWA terminée');
+    showLiveButton(owner, appName);
+    watchDeployment(token, since);
+    setFooterStatus('Déploiement…', 'busy');
+  } catch(err) {
+    console.error(err);
+    updateStatus('❌ ERREUR : ' + err.message);
+    toast(err.message, true);
+    setLed('red'); finishProgress(false);
+    stopDeploymentWatch(); stopProgress();
+    setFooterStatus('Erreur', 'err');
+    if(!liveOwner){
+      byId('liveBtn').classList.remove('hidden');
+      byId('liveStatusTitle').textContent = 'Erreur';
+      byId('liveStatusText').textContent = err.message.slice(0, 60);
+    }
+  } finally {
+    resetInjectButton();
+  }
+}
+
+/* ========================================================= FORGE ========================================================= */
+async function generatePWA(){
+  if(isForgeRunning){ toast('Forge déjà en cours', true); return; }
+  const token = byId('ghToken').value.trim();
+  const appName = sanitizeRepoName(byId('appName').value);
+  const source = byId('htmlInput').value.trim();
+  const btn = byId('mainBtn');
+  if(!token){ toast('Token GitHub manquant', true); updateStatus('❌ Token GitHub manquant', true); return; }
+  if(!appName){ toast('Nom du projet manquant', true); updateStatus('❌ Nom du projet manquant', true); return; }
+  if(!source){ toast('Code HTML vide', true); updateStatus('❌ Code HTML vide', true); return; }
+  if(!icon512 || !icon192){ toast('Icône PWA manquante', true); updateStatus('❌ Icône PWA manquante', true); return; }
+  isForgeRunning = true;
+  btn.disabled = true;
+  byId('forgeIcon').classList.add('hidden');
+  byId('loader').classList.remove('hidden');
+  byId('liveBtn').classList.add('hidden');
+  stopDeploymentWatch();
+  stopProgress();
+  haptic(12);
+  setFooterStatus('Forge en cours…', 'busy');
+  updateStatus('--- SEQUENCE MASTERCODE ACTIVÉE ---', true);
+  try {
+    try {
+      const deps = detectDependencies(true);
+      if(deps && deps.missing && deps.missing.length){
+        updateStatus('⚠️ Dépendances détectées : ' + deps.missing.map(d => d.name).join(', '));
+        injectDependencies(deps.missing);
+      }
+    } catch(e){ console.warn('Dep detection failed:', e); }
+    updateStatus('Authentification GitHub...');
+    const owner = await getOwner(token);
+    updateStatus('✅ Authentification GitHub réussie.');
+    await ensureRepo(token, owner, appName);
+    updateStatus('Compilation PWA...');
+    const { html, hasCustom } = buildPwaHtml(byId('htmlInput').value.trim());
+    if(hasCustom) updateStatus('Script personnalisé injecté.');
+    updateStatus('Génération des écrans de lancement (' + getBg() + ')...');
+    const splashFiles = await buildSplashImages();
+    const filesToUpload = [
+      { path: 'index.html', content: utf8ToBase64(html) },
+      { path: 'manifest.json', content: utf8ToBase64(buildManifest(appName)) },
+      { path: 'sw.js', content: utf8ToBase64(buildServiceWorker(appName)) },
+      { path: 'icon.png', content: icon512 },
+      { path: 'icon-192.png', content: icon192 }
+    ];
+    const since = Date.now();
+    for(const file of filesToUpload){
+      updateStatus(`Upload : ${file.path}...`);
+      await putFile(token, owner, appName, file.path, file.content, 'Mastercode Sync');
+      updateStatus(`✅ ${file.path} envoyé.`);
+    }
+    updateStatus('Upload : écrans de lancement (' + splashFiles.length + ')...');
+    for(const file of splashFiles){
+      await putFile(token, owner, appName, file.path, file.content, 'Mastercode Sync');
+    }
+    updateStatus('✅ Écrans de lancement envoyés.');
+    updateStatus('Activation de GitHub Pages...');
+    await ensurePages(token, owner, appName);
+    updateStatus('✅ Fichiers envoyés. Déploiement en cours...');
+    toast('Mastercode : application forgée');
+    showLiveButton(owner, appName);
+    watchDeployment(token, since);
+    setFooterStatus('Déploiement…', 'busy');
+  } catch(err) {
+    console.error('FORGE ERROR:', err);
+    const msg = err.message || 'Erreur inconnue';
+    updateStatus('❌ ERREUR : ' + msg);
+    toast(msg, true);
+    byId('liveBtn').classList.remove('hidden');
+    setLed('red');
+    finishProgress(false);
+    byId('liveStatusTitle').textContent = 'Erreur de forge';
+    byId('liveStatusText').textContent = msg.slice(0, 60);
+    stopDeploymentWatch();
+    stopProgress();
+    setFooterStatus('Erreur', 'err');
+  } finally {
+    resetForgeButton();
+  }
+}
+
+/* ========================================================= INIT ========================================================= */
+(function init(){
+  const token = store.getItem(LS_KEYS.TOKEN);
+  if(token) byId('ghToken').value = token;
+  const appName = store.getItem(LS_KEYS.APP_NAME);
+  if(appName) byId('appName').value = appName;
+  const html = store.getItem(LS_KEYS.HTML);
+  if(html) byId('htmlInput').value = html;
+  updateHtmlMeta();
+  const i512 = store.getItem(LS_KEYS.ICON_512);
+  const i192 = store.getItem(LS_KEYS.ICON_192);
+  const preview = store.getItem(LS_KEYS.ICON_PREVIEW);
+  const savedBg = store.getItem(LS_KEYS.ICON_BG);
+  if(i512 && i192){
+    icon512 = i512;
+    icon192 = i192;
+    iconBg = isHex(savedBg) ? savedBg : '';
+    if(preview){
+      byId('iconPreview').src = preview;
+      byId('iconPreviewWrap').classList.remove('hidden');
+      byId('iconClear').classList.add('show');
+      byId('iconZone').classList.add('has-icon');
+    }
+  }
+  updateBgPicker();
+  const custom = store.getItem(LS_KEYS.CUSTOM_SCRIPT);
+  if(custom) byId('customScript').value = custom;
+
+  renderSessionsSidebar();
+
+  updateStatus('--- MASTERCODE 3.0 · PC FIRST ---', true);
+  updateStatus('💾 Sauvegarde automatique activée');
+  updateStatus('⌨ Appuyez sur ? pour les raccourcis');
+  setFooterStatus('Prêt', 'ok');
+
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => { navigator.serviceWorker.register('./sw.js').catch(() => {}); });
+  }
+})();
+
+/* ========================================================= KEYBOARD SHORTCUTS ========================================================= */
+document.addEventListener('keydown', (e) => {
+  const isMod = e.ctrlKey || e.metaKey;
+  const target = e.target;
+  const inInput = target.matches('input, textarea, [contenteditable="true"]');
+
+  // Escape - close all modals
+  if(e.key === 'Escape'){
+    closeSwModal();
+    closeSessionsModal();
+    closeShortcutsModal();
+    if(byId('sidebar').classList.contains('open')) byId('sidebar').classList.remove('open');
+    return;
+  }
+
+  // ? - help (only if not typing)
+  if(e.key === '?' && !inInput && !isMod && !e.shiftKey){
+    e.preventDefault();
+    openShortcutsModal();
+    return;
+  }
+
+  if(!isMod) return;
+
+  // Ctrl+Enter - Forge
+  if(e.code === 'Enter' && !e.shiftKey){
+    e.preventDefault();
+    if(isForgeRunning) return;
+    generatePWA();
+    return;
+  }
+
+  // Ctrl+Shift+Enter - Inject
+  if(e.code === 'Enter' && e.shiftKey){
+    e.preventDefault();
+    if(isInjectRunning) return;
+    injectPwaToGitHub();
+    return;
+  }
+
+  // Ctrl+S - Save session
+  if(e.code === 'KeyS' && !e.shiftKey){
+    e.preventDefault();
+    saveCurrentAsSession();
+    return;
+  }
+
+  // Ctrl+K - focus token
+  if(e.code === 'KeyK' && !e.shiftKey){
+    e.preventDefault();
+    const t = byId('ghToken');
+    t.focus(); t.select();
+    return;
+  }
+
+  // Ctrl+Shift+K - focus project name
+  if(e.code === 'KeyK' && e.shiftKey){
+    e.preventDefault();
+    const n = byId('appName');
+    n.focus(); n.select();
+    return;
+  }
+
+  // Ctrl+B - focus editor
+  if(e.code === 'KeyB' && !e.shiftKey){
+    e.preventDefault();
+    byId('htmlInput').focus();
+    return;
+  }
+
+  // Ctrl+, - custom script modal
+  if(e.code === 'Comma'){
+    e.preventDefault();
+    openSwModal();
+    return;
+  }
+});
+
+/* Curseur lumineux sur Forger */
+document.addEventListener('mousemove', e => {
+  const btn = byId('mainBtn');
+  if(!btn) return;
+  const r = btn.getBoundingClientRect();
+  if(e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom){
+    btn.style.setProperty('--mx', ((e.clientX-r.left)/r.width*100)+'%');
+    btn.style.setProperty('--my', ((e.clientY-r.top)/r.height*100)+'%');
+  }
+});
+</script>
+</body>
+</html>
